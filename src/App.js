@@ -102,7 +102,7 @@ export default function App() {
   const [selectedTime, setSelectedTime] = useState(null);
   const [takenSeats] = useState(generateSeats);
   const [chosenSeats, setChosenSeats] = useState([]);
-  const [booked, setBooked] = useState(false);
+  const [, setBooked] = useState(false);
   const [filterGenre, setFilterGenre] = useState("All");
 
   const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
