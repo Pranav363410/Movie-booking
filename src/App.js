@@ -79,6 +79,19 @@ const MOVIES = [
     desc: "A remote arctic research station becomes a nightmare when the crew makes a terrifying discovery.",
     showtimes: ["11:00 AM", "2:00 PM", "6:30 PM", "9:30 PM"],
   },
+  {
+    id: 7,
+    title: "Vaazha 2",
+    genre: "Comedy emotional drama",
+    duration: "2h 45m",
+    rating: "9.2/10",
+    score: "8.2",
+    poster: "$",
+    color: "#1a0a1a",
+    accent: "#ec4899",
+    desc: "A group youngsters story which is executed to relate with all the boys out there.",
+    showtime: ["10:00 AM", "2:00 PM", "6:00 PM", "9:00 PM"],
+  } 
 ];
 
 const ROWS = ["A","B","C","D","E","F","G","H"];
