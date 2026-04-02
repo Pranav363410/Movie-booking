@@ -86,11 +86,11 @@ const MOVIES = [
     duration: "2h 45m",
     rating: "9.2/10",
     score: "8.2",
-    poster: "$",
+    poster: "🎬",
     color: "#1a0a1a",
     accent: "#ec4899",
     desc: "A group youngsters story which is executed to relate with all the boys out there.",
-    showtime: ["10:00 AM", "2:00 PM", "6:00 PM", "9:00 PM"],
+    showtimes: ["10:00 AM", "2:00 PM", "6:00 PM", "9:00 PM"],
   } 
 ];
 
@@ -217,7 +217,7 @@ export default function App() {
                 const active = selectedDate && d.toDateString() === selectedDate.toDateString();
                 return (
                   <button key={i} onClick={() => { setSelectedDate(d); setSelectedTime(null); setChosenSeats([]); }}
-                    style={{ background: active ? selectedMovie.accent : "#111827", color: active ? "#fff" : "#94a3b8", border: active ? "none" : "1px solid #1e293b", borderRadius: 10, padding: "0.65rem 1rem", cursor: "pointer", fontSize: "0.85rem", fontWeight: active ? 600 : 400, fontFamily: "inherit" }}>
+                    style={{ background: active ? selectedMovie?.accent : "#111827", color: active ? "#fff" : "#94a3b8", border: active ? "none" : "1px solid #1e293b", borderRadius: 10, padding: "0.65rem 1rem", cursor: "pointer", fontSize: "0.85rem", fontWeight: active ? 600 : 400, fontFamily: "inherit" }}>
                     {i === 0 ? "Today" : i === 1 ? "Tomorrow" : formatDate(d)}
                   </button>
                 );
@@ -228,11 +228,11 @@ export default function App() {
           {/* Showtime Picker */}
           <Section title="Select Showtime" accent={selectedMovie.accent}>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {selectedMovie.showtimes.map(t => {
+              {(selectedMovie?.showtimes || []).map(t =>{
                 const active = selectedTime === t;
                 return (
                   <button key={t} onClick={() => { setSelectedTime(t); setChosenSeats([]); }}
-                    style={{ background: active ? selectedMovie.accent : "#111827", color: active ? "#fff" : "#94a3b8", border: active ? "none" : "1px solid #1e293b", borderRadius: 10, padding: "0.65rem 1.25rem", cursor: "pointer", fontSize: "0.9rem", fontWeight: active ? 600 : 400, fontFamily: "inherit" }}>
+                    style={{ background: active ? selectedMovie?.accent : "#111827", color: active ? "#fff" : "#94a3b8", border: active ? "none" : "1px solid #1e293b", borderRadius: 10, padding: "0.65rem 1.25rem", cursor: "pointer", fontSize: "0.9rem", fontWeight: active ? 600 : 400, fontFamily: "inherit" }}>
                     {t}
                   </button>
                 );
