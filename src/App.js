@@ -4,7 +4,7 @@ import { useState } from "react";
 const MOVIES = [
   {
     id: 1,
-    title: "Interstellar Echoes",
+    title: "Interstellar",
     genre: "Sci-Fi",
     duration: "2h 28m",
     rating: "PG-13",
@@ -56,7 +56,7 @@ const MOVIES = [
   },
   {
     id: 5,
-    title: "Dunes of Time",
+    title: "Dune",
     genre: "Adventure",
     duration: "2h 45m",
     rating: "PG",
