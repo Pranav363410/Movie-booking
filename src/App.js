@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { supabase } from './supabase'
 import { useState } from "react";
 
 const MOVIES = [
@@ -118,8 +119,32 @@ export default function App() {
   const [chosenSeats, setChosenSeats] = useState([]);
   const [, setBooked] = useState(false);
   const [filterGenre, setFilterGenre] = useState("All");
+  const [user, setUser] = useState(null);
+  const handleGoogleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+  if (error) console.error('Login error:', error);
+};
 
-  const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
+const handleLogout = async () => {
+  await supabase.auth.signOut();
+  setUser(null);
+};
+
+useState(() => {
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setUser(session?.user ?? null);
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+  });
+});  
+const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
 
   const dates = Array.from({ length: 5 }, (_, i) => {
     const d = new Date();
@@ -320,15 +345,29 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: "#080c14", fontFamily: "'Georgia', serif", color: "#fff" }}>
       {/* Nav */}
       <nav style={{ padding: "1.25rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #0f172a" }}>
-        <div style={{ fontWeight: 800, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
-          <span style={{ color: "#f59e0b" }}>■</span> CineMax
-        </div>
-        <div style={{ display: "flex", gap: "1.5rem" }}>
-          {["Movies", "Cinemas", "Offers"].map(item => (
-            <span key={item} style={{ color: "#475569", fontSize: "0.9rem", cursor: "pointer" }}>{item}</span>
-          ))}
-        </div>
-      </nav>
+  <div style={{ fontWeight: 800, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
+    <span style={{ color: "#f59e0b" }}>■</span> CineMax
+  </div>
+  <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+    {["Movies", "Cinemas", "Offers"].map(item => (
+      <span key={item} style={{ color: "#475569", fontSize: "0.9rem", cursor: "pointer" }}>{item}</span>
+    ))}
+    {user ? (
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>👋 {user.user_metadata.full_name}</span>
+        <button onClick={handleLogout}
+          style={{ background: "none", border: "1px solid #475569", borderRadius: 8, padding: "0.4rem 1rem", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
+          Logout
+        </button>
+      </div>
+    ) : (
+      <button onClick={handleGoogleLogin}
+        style={{ background: "#f59e0b", border: "none", borderRadius: 8, padding: "0.4rem 1rem", color: "#000", cursor: "pointer", fontSize: "0.85rem", fontWeight: 700, fontFamily: "Georgia, serif" }}>
+        Sign in with Google
+      </button>
+    )}
+  </div>
+</nav>
 
       {/* Hero */}
       <div style={{ padding: "3rem 2rem 2rem", maxWidth: 1100, margin: "0 auto" }}>
