@@ -43,7 +43,7 @@ const MOVIES = [
   },
   {
     id: 4,
-    title: "Neon Phantom",
+    title: "Dark Knight",
     genre: "Action",
     duration: "2h 02m",
     rating: "PG-13",
