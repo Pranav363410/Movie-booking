@@ -80,6 +80,19 @@ const MOVIES = [
     desc: "A remote arctic research station becomes a nightmare when the crew makes a terrifying discovery.",
     showtimes: ["11:00 AM", "2:00 PM", "6:30 PM", "9:30 PM"],
   },
+  {
+  id: 7,
+  title: "Vaazha 2",
+  genre: "Drama",
+  duration: "2h 30m",
+  rating: "U/A",
+  score: "8.5",
+  poster: "https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/Vaazha_film_poster.jpg/220px-Vaazha_film_poster.jpg",
+  color: "#0a1a0a",
+  accent: "#22c55e",
+  desc: "The much awaited sequel continuing the story of love, struggle and redemption.",
+  showtimes: ["10:00 AM", "1:30 PM", "5:00 PM", "8:30 PM"],
+},
 ];
 
 const ROWS = ["A","B","C","D","E","F","G","H"];
@@ -192,7 +205,8 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
 
           <div style={{ background: "#111827", borderRadius: 16, padding: "1.5rem", textAlign: "left", marginBottom: "2rem", border: "1px solid #1e293b" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: "1.5rem" }}>
-              <span style={{ fontSize: 36 }}>{selectedMovie.poster}</span>
+              <img src={selectedMovie.poster} alt={selectedMovie.title}
+  style={{ width: 40, height: 56, objectFit: "cover", borderRadius: 6 }} />
               <div>
                 <div style={{ color: "#fff", fontWeight: 600, fontSize: "1.1rem" }}>{selectedMovie.title}</div>
                 <div style={{ color: "#64748b", fontSize: "0.85rem" }}>{selectedMovie.genre} · {selectedMovie.rating}</div>
