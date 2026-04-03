@@ -9,7 +9,7 @@ const MOVIES = [
     duration: "2h 28m",
     rating: "PG-13",
     score: "9.1",
-    poster: "🚀",
+    poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
     color: "#0f172a",
     accent: "#6366f1",
     desc: "A crew of astronauts travels through a wormhole near Saturn in search of a new home for humanity.",
@@ -22,7 +22,7 @@ const MOVIES = [
     duration: "1h 58m",
     rating: "R",
     score: "8.4",
-    poster: "🌊",
+    poster: "https://image.tmdb.org/t/p/w500/jYEW5xZkZk2WTrdbMGAPFuBqbDc.jpg",
     color: "#1a0a0a",
     accent: "#ef4444",
     desc: "A detective uncovers a web of corruption stretching from the ocean floor to the highest offices.",
@@ -35,7 +35,7 @@ const MOVIES = [
     duration: "2h 10m",
     rating: "PG",
     score: "8.8",
-    poster: "🌿",
+    poster: "https://image.tmdb.org/t/p/w500/9Gtg2DzbZmatoNnhZmBkrkEYfzj.jpg",
     color: "#091a0a",
     accent: "#22c55e",
     desc: "An elderly botanist races to preserve the world's rarest seeds before a global catastrophe.",
@@ -48,7 +48,7 @@ const MOVIES = [
     duration: "2h 02m",
     rating: "PG-13",
     score: "7.9",
-    poster: "⚡",
+    poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
     color: "#0d0d1a",
     accent: "#a855f7",
     desc: "A vigilante with supernatural abilities fights to protect a city drowning in crime and shadows.",
@@ -61,7 +61,7 @@ const MOVIES = [
     duration: "2h 45m",
     rating: "PG",
     score: "8.6",
-    poster: "🏜️",
+    poster: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
     color: "#1a1000",
     accent: "#f59e0b",
     desc: "Across shifting sands and ancient ruins, one archaeologist holds the key to rewriting history.",
@@ -74,25 +74,12 @@ const MOVIES = [
     duration: "1h 52m",
     rating: "R",
     score: "7.6",
-    poster: "❄️",
+    poster: "https://image.tmdb.org/t/p/w500/ArAGHbCTSSeQeT4MiuwFMrLToGo.jpg",
     color: "#050a14",
     accent: "#38bdf8",
     desc: "A remote arctic research station becomes a nightmare when the crew makes a terrifying discovery.",
     showtimes: ["11:00 AM", "2:00 PM", "6:30 PM", "9:30 PM"],
   },
-  {
-    id: 7,
-    title: "Vaazha 2",
-    genre: "Comedy emotional drama",
-    duration: "2h 45m",
-    rating: "9.2/10",
-    score: "8.2",
-    poster: "🎬",
-    color: "#1a0a1a",
-    accent: "#ec4899",
-    desc: "A group youngsters story which is executed to relate with all the boys out there.",
-    showtimes: ["10:00 AM", "2:00 PM", "6:00 PM", "9:00 PM"],
-  } 
 ];
 
 const ROWS = ["A","B","C","D","E","F","G","H"];
@@ -404,8 +391,9 @@ function MovieCard({ movie, onBook }) {
       onMouseLeave={() => setHovered(false)}
       style={{ background: "#0d1117", border: "1px solid", borderColor: hovered ? movie.accent + "66" : "#1e293b", borderRadius: 16, overflow: "hidden", transition: "border-color 0.25s, transform 0.2s", transform: hovered ? "translateY(-3px)" : "none", cursor: "default" }}>
       {/* Poster */}
-      <div style={{ height: 180, background: `linear-gradient(135deg, ${movie.color} 0%, ${movie.accent}33 100%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64, position: "relative" }}>
-        {movie.poster}
+      <div style={{ height: 240, position: "relative", overflow: "hidden" }}>
+  <img src={movie.poster} alt={movie.title}
+    style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", top: 12, right: 12, background: "#00000066", borderRadius: 8, padding: "3px 10px", fontSize: "0.78rem", fontWeight: 600, color: "#fbbf24", backdropFilter: "blur(4px)" }}>
           ★ {movie.score}
         </div>
