@@ -1,3 +1,4 @@
+import { supabase } from './supabase'
 import { useState } from "react";
 
 const MOVIES = [
@@ -145,8 +146,25 @@ export default function App() {
     setPage("booking");
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!selectedTime || chosenSeats.length === 0) return;
+    
+    const { error } = await supabase
+      .from('bookings')
+      .insert([{
+        movie_title: selectedMovie.title,
+        show_date: selectedDate.toISOString().split('T')[0],
+        show_time: selectedTime,
+        seats: chosenSeats.sort().join(', '),
+        total_price: chosenSeats.length * TICKET_PRICE
+      }]);
+
+    if (error) {
+      console.error('Booking error:', error);
+      alert('Something went wrong! Please try again.');
+      return;
+    }
+
     setBooked(true);
     setPage("confirmation");
   };
