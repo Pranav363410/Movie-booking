@@ -96,6 +96,7 @@ function generateSeats() {
 }
 
 const TICKET_PRICE = 350;
+const ADMIN_EMAIL = "pranavmanohar28@gmail.com";
 
 export default function App() {
   const [page, setPage] = useState("home");
@@ -108,6 +109,8 @@ export default function App() {
   const [filterGenre, setFilterGenre] = useState("All");
   const [myBookings, setMyBookings] = useState([]);
 const [loadingBookings, setLoadingBookings] = useState(false);
+const [allBookings, setAllBookings] = useState([]);
+const [loadingAdmin, setLoadingAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const handleGoogleLogin = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
@@ -152,6 +155,17 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
     d.setDate(d.getDate() + i);
     return d;
   });
+  const fetchAdminData = async () => {
+  if (!user || user.email !== ADMIN_EMAIL) return;
+  setLoadingAdmin(true);
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (!error) setAllBookings(data);
+  setLoadingAdmin(false);
+  setPage("admin");
+};
 
   const formatDate = (d) =>
     d.toLocaleDateString("en-IN", { weekday: "short", month: "short", day: "numeric" });
@@ -197,6 +211,63 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
 };
 
   const filtered = filterGenre === "All" ? MOVIES : MOVIES.filter(m => m.genre === filterGenre);
+  if (page === "admin") {
+  const totalRevenue = allBookings.reduce((sum, b) => sum + b.total_price, 0);
+  const uniqueUsers = [...new Set(allBookings.map(b => b.user_email))].length;
+  const movieCounts = allBookings.reduce((acc, b) => {
+    acc[b.movie_title] = (acc[b.movie_title] || 0) + 1;
+    return acc;
+  }, {});
+  const topMovie = Object.entries(movieCounts).sort((a, b) => b[1] - a[1])[0];
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#080c14", fontFamily: "'Georgia', serif", color: "#fff" }}>
+      <div style={{ padding: "1.25rem 2rem", display: "flex", alignItems: "center", gap: "1rem", borderBottom: "1px solid #1e293b" }}>
+        <button onClick={() => setPage("home")} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.5rem" }}>←</button>
+        <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700 }}>Admin Dashboard</h2>
+      </div>
+
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem" }}>
+
+        {/* Stats Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+          {[
+            { label: "Total Bookings", value: allBookings.length, color: "#6366f1" },
+            { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString("en-IN")}`, color: "#f59e0b" },
+            { label: "Unique Users", value: uniqueUsers, color: "#22c55e" },
+            { label: "Top Movie", value: topMovie ? topMovie[0] : "N/A", color: "#ef4444" },
+          ].map(stat => (
+            <div key={stat.label} style={{ background: "#111827", borderRadius: 14, padding: "1.25rem", border: `1px solid ${stat.color}33` }}>
+              <div style={{ color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{stat.label}</div>
+              <div style={{ color: stat.color, fontSize: "1.4rem", fontWeight: 700 }}>{stat.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* All Bookings Table */}
+        <h3 style={{ color: "#e2e8f0", marginBottom: "1rem", fontWeight: 600 }}>All Bookings</h3>
+        {loadingAdmin ? (
+          <div style={{ color: "#64748b", textAlign: "center", padding: "2rem" }}>Loading...</div>
+        ) : allBookings.length === 0 ? (
+          <div style={{ color: "#64748b", textAlign: "center", padding: "2rem" }}>No bookings yet!</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {allBookings.map(booking => (
+              <div key={booking.id} style={{ background: "#111827", borderRadius: 12, padding: "1rem 1.25rem", border: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "0.95rem" }}>{booking.movie_title}</div>
+                  <div style={{ color: "#64748b", fontSize: "0.8rem" }}>{booking.user_email} · {booking.show_date} · {booking.show_time}</div>
+                  <div style={{ color: "#94a3b8", fontSize: "0.8rem" }}>Seats: {booking.seats}</div>
+                </div>
+                <div style={{ color: "#f59e0b", fontWeight: 700 }}>₹{booking.total_price}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
   if (page === "mybookings") {
   return (
     <div style={{ minHeight: "100vh", background: "#080c14", fontFamily: "'Georgia', serif", color: "#fff" }}>
@@ -407,6 +478,12 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
         <button onClick={fetchMyBookings}
   style={{ background: "none", border: "1px solid #475569", borderRadius: 8, padding: "0.4rem 1rem", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
   My Bookings
+  {user && user.email === ADMIN_EMAIL && (
+  <button onClick={fetchAdminData}
+    style={{ background: "#f59e0b", border: "none", borderRadius: 8, padding: "0.4rem 1rem", color: "#000", cursor: "pointer", fontSize: "0.85rem", fontWeight: 700, fontFamily: "Georgia, serif" }}>
+    Admin
+  </button>
+)}
 </button>
         <button onClick={handleLogout}
           style={{ background: "none", border: "1px solid #475569", borderRadius: 8, padding: "0.4rem 1rem", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
