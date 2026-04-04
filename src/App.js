@@ -106,6 +106,8 @@ export default function App() {
   const [chosenSeats, setChosenSeats] = useState([]);
   const [, setBooked] = useState(false);
   const [filterGenre, setFilterGenre] = useState("All");
+  const [myBookings, setMyBookings] = useState([]);
+const [loadingBookings, setLoadingBookings] = useState(false);
   const [user, setUser] = useState(null);
   const handleGoogleLogin = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
@@ -130,7 +132,19 @@ useState(() => {
   supabase.auth.onAuthStateChange((_event, session) => {
     setUser(session?.user ?? null);
   });
-});  
+});
+const fetchMyBookings = async () => {
+  if (!user) return;
+  setLoadingBookings(true);
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('user_email', user.email)
+    .order('created_at', { ascending: false });
+  if (!error) setMyBookings(data);
+  setLoadingBookings(false);
+  setPage("mybookings");
+};  
 const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
 
   const dates = Array.from({ length: 5 }, (_, i) => {
@@ -159,29 +173,75 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
   };
 
   const handleConfirm = async () => {
-    if (!selectedTime || chosenSeats.length === 0) return;
-    
-    const { error } = await supabase
-      .from('bookings')
-      .insert([{
-        movie_title: selectedMovie.title,
-        show_date: selectedDate.toISOString().split('T')[0],
-        show_time: selectedTime,
-        seats: chosenSeats.sort().join(', '),
-        total_price: chosenSeats.length * TICKET_PRICE
-      }]);
+  if (!selectedTime || chosenSeats.length === 0) return;
 
-    if (error) {
-      console.error('Booking error:', error);
-      alert('Something went wrong! Please try again.');
-      return;
-    }
+  const { error } = await supabase
+    .from('bookings')
+    .insert([{
+      movie_title: selectedMovie.title,
+      show_date: selectedDate.toISOString().split('T')[0],
+      show_time: selectedTime,
+      seats: chosenSeats.sort().join(', '),
+      total_price: chosenSeats.length * TICKET_PRICE,
+      user_email: user?.email || 'guest'
+    }]);
 
-    setBooked(true);
-    setPage("confirmation");
-  };
+  if (error) {
+    console.error('Booking error:', error);
+    alert('Something went wrong! Please try again.');
+    return;
+  }
+
+  setBooked(true);
+  setPage("confirmation");
+};
 
   const filtered = filterGenre === "All" ? MOVIES : MOVIES.filter(m => m.genre === filterGenre);
+  if (page === "mybookings") {
+  return (
+    <div style={{ minHeight: "100vh", background: "#080c14", fontFamily: "'Georgia', serif", color: "#fff" }}>
+      <div style={{ padding: "1.25rem 2rem", display: "flex", alignItems: "center", gap: "1rem", borderBottom: "1px solid #1e293b" }}>
+        <button onClick={() => setPage("home")} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.5rem" }}>←</button>
+        <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700 }}>My Bookings</h2>
+      </div>
+
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "2rem 1.5rem" }}>
+        {loadingBookings ? (
+          <div style={{ textAlign: "center", color: "#64748b", padding: "3rem" }}>Loading your bookings...</div>
+        ) : myBookings.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "3rem" }}>
+            <div style={{ fontSize: 48, marginBottom: "1rem" }}>🎬</div>
+            <p style={{ color: "#64748b" }}>You haven't booked any movies yet!</p>
+            <button onClick={() => setPage("home")}
+              style={{ background: "#f59e0b", border: "none", borderRadius: 10, padding: "0.75rem 2rem", color: "#000", fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", marginTop: "1rem" }}>
+              Browse Movies
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {myBookings.map(booking => (
+              <div key={booking.id} style={{ background: "#111827", borderRadius: 14, padding: "1.25rem 1.5rem", border: "1px solid #1e293b" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: 4 }}>{booking.movie_title}</div>
+                    <div style={{ color: "#64748b", fontSize: "0.85rem" }}>{booking.show_date} · {booking.show_time}</div>
+                    <div style={{ color: "#94a3b8", fontSize: "0.85rem", marginTop: 4 }}>Seats: {booking.seats}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: "1.2rem" }}>₹{booking.total_price}</div>
+                    <div style={{ color: "#475569", fontSize: "0.75rem", marginTop: 4 }}>
+                      {new Date(booking.created_at).toLocaleDateString("en-IN")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
   if (page === "confirmation") {
     return (
@@ -344,6 +404,10 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
     {user ? (
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>👋 {user.user_metadata.full_name}</span>
+        <button onClick={fetchMyBookings}
+  style={{ background: "none", border: "1px solid #475569", borderRadius: 8, padding: "0.4rem 1rem", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
+  My Bookings
+</button>
         <button onClick={handleLogout}
           style={{ background: "none", border: "1px solid #475569", borderRadius: 8, padding: "0.4rem 1rem", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem", fontFamily: "Georgia, serif" }}>
           Logout
