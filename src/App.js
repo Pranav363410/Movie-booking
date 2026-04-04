@@ -189,25 +189,53 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
   const handleConfirm = async () => {
   if (!selectedTime || chosenSeats.length === 0) return;
 
-  const { error } = await supabase
-    .from('bookings')
-    .insert([{
-      movie_title: selectedMovie.title,
-      show_date: selectedDate.toISOString().split('T')[0],
-      show_time: selectedTime,
-      seats: chosenSeats.sort().join(', '),
-      total_price: chosenSeats.length * TICKET_PRICE,
-      user_email: user?.email || 'guest'
-    }]);
+  const amount = chosenSeats.length * TICKET_PRICE;
 
-  if (error) {
-    console.error('Booking error:', error);
-    alert('Something went wrong! Please try again.');
-    return;
-  }
+  const options = {
+    key: "rzp_test_SZVuObF0lR7gxc",
+    amount: amount * 100,
+    currency: "INR",
+    name: "CineMax",
+    description: `${selectedMovie.title} - ${chosenSeats.sort().join(", ")}`,
+    image: "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
+    handler: async function (response) {
+      const { error } = await supabase
+        .from('bookings')
+        .insert([{
+          movie_title: selectedMovie.title,
+          show_date: selectedDate.toISOString().split('T')[0],
+          show_time: selectedTime,
+          seats: chosenSeats.sort().join(', '),
+          total_price: amount,
+          user_email: user?.email || 'guest',
+          payment_id: response.razorpay_payment_id
+        }]);
 
-  setBooked(true);
-  setPage("confirmation");
+      if (error) {
+        console.error('Booking error:', error);
+        alert('Payment successful but booking failed. Please contact support.');
+        return;
+      }
+
+      setBooked(true);
+      setPage("confirmation");
+    },
+    prefill: {
+      name: user?.user_metadata?.full_name || "",
+      email: user?.email || "",
+    },
+    theme: {
+      color: "#f59e0b"
+    },
+    modal: {
+      ondismiss: function() {
+        alert('Payment cancelled!');
+      }
+    }
+  };
+
+  const razor = new window.Razorpay(options);
+  razor.open();
 };
 
   const filtered = filterGenre === "All" ? MOVIES : MOVIES.filter(m => m.genre === filterGenre);
