@@ -232,7 +232,8 @@ const genres = ["All", ...new Set(MOVIES.map(m => m.genre))];
         {/* Header */}
         <div style={{ padding: "1.25rem 2rem", display: "flex", alignItems: "center", gap: "1rem", borderBottom: "1px solid #1e293b" }}>
           <button onClick={() => setPage("home")} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.5rem", lineHeight: 1 }}>←</button>
-          <span style={{ fontSize: 24 }}>{selectedMovie.poster}</span>
+          <img src={selectedMovie.poster} alt={selectedMovie.title}
+  style={{ width: 40, height: 56, objectFit: "cover", borderRadius: 6 }} />
           <div>
             <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{selectedMovie.title}</div>
             <div style={{ color: "#64748b", fontSize: "0.8rem" }}>{selectedMovie.duration} · {selectedMovie.rating}</div>
